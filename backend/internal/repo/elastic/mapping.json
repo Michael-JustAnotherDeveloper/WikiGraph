@@ -1,0 +1,12 @@
+{
+  "properties": {
+    "uuid": { "type": "keyword" },
+    "url": { "type": "text" },
+    "title_ru": { "type": "text", "analyzer": "russian" },
+    "author_ru": { "type": "text", "analyzer": "russian" },
+    "description_ru": { "type": "text", "analyzer": "russian" },
+    "title_en": { "type": "text", "analyzer": "english" },
+    "author_en": { "type": "text", "analyzer": "english" },
+    "description_en": { "type": "text", "analyzer": "english" }
+  }
+}
