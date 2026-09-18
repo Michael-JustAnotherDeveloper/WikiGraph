@@ -9,9 +9,8 @@ services:
     env_file:
       - .env
     
-    #depends_on:
-      #backend:
-        #condition: service_healthy
+    depends_on:
+      - backend
 
   backend:
     build: ./backend
@@ -28,13 +27,6 @@ services:
         condition: service_healthy
       graph_db:
         condition: service_healthy
-    
-    healthcheck:
-      test: ["CMD-SHELL", "wget", "http://localhost:8080/health"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
 
   elastic_db:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
