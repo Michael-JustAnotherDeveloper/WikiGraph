@@ -40,8 +40,8 @@ services:
       #- 9200:9200
       #- 9300:9300
     
-    #volumes:
-     #- elastic-data:/usr/share/elasticsearch/data
+    volumes:
+     - elastic-data:/usr/share/elasticsearch/data
     
     healthcheck:
       test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -vq '\"status\":\"red\"'"]   # != red
@@ -63,8 +63,18 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
-    #volumes:
-      #- $HOME/neo4j/data:/data
+    volumes:
+      - neo4j_data:/data
   
-#volumes:
-  #elastic-data:
+  admin_panel:
+    build: ./admin
+    container_name: admin_panel
+    ports:
+      - 8000:8000
+    
+    depends_on:
+      - backend
+  
+volumes:
+  elastic-data:
+  neo4j_data:

@@ -11,7 +11,7 @@
 set -euo pipefail
 
 BACKEND_URL="${BACKEND_URL:-http://localhost:8080}"
-INTERNAL_TOKEN="${INTERNAL_TOKEN:-dev-internal-token-change-me}"
+INTERNAL_TOKEN="${INTERNAL_TOKEN:-secret-token}"
 
 post_page() {
   local payload="$1"

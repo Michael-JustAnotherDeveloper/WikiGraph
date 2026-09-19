@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neo4j — Технический паспорт</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #e8f4fd 0%, #dbeafe 30%, #ede9fe 70%, #fce7f3 100%);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  body::before,
+  body::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    z-index: 0;
+  }
+
+  body::before {
+    width: 440px;
+    height: 440px;
+    background: #93c5fd;
+    top: -140px;
+    left: -120px;
+  }
+
+  body::after {
+    width: 400px;
+    height: 400px;
+    background: #c4b5fd;
+    bottom: -150px;
+    right: -100px;
+  }
+
+  .glass-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 560px;
+    padding: 2.25rem 2rem;
+    border-radius: 24px;
+
+    /* Стекло */
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow:
+      0 8px 32px rgba(80, 100, 140, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  /* Верхняя строка */
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6b7a99;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(167, 243, 208, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    color: #047857;
+    font-size: 0.65rem;
+  }
+
+  .status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #047857;
+    box-shadow: 0 0 6px #047857;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  /* Заголовок */
+  h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #1e3a5f;
+    line-height: 1.1;
+    margin-bottom: 0.35rem;
+  }
+
+  .subtitle {
+    font-weight: 400;
+    color: #6b7a99;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+
+  /* Разделитель */
+  .divider {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(107, 122, 153, 0.3),
+      transparent
+    );
+    margin: 1.5rem 0;
+  }
+
+  /* Описание */
+  .description {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: #4a5a7a;
+    margin-bottom: 1.75rem;
+  }
+
+  /* Сетка характеристик */
+  .specs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .spec {
+    padding: 0.85rem 0.75rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    text-align: center;
+  }
+
+  .spec-value {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1e3a5f;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .spec-unit {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #8a9ab5;
+    margin-left: 2px;
+  }
+
+  .spec-label {
+    display: block;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #6b7a99;
+    margin-top: 0.35rem;
+    font-weight: 600;
+  }
+
+  /* Модель данных */
+  .model {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6b7a99;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .model-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.65rem;
+    font-size: 0.8rem;
+    color: #4a5a7a;
+  }
+
+  .model-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .badge-node {
+    background: linear-gradient(135deg, #dbeafe, #93c5fd);
+    color: #1e40af;
+    border: 1px solid rgba(147, 197, 253, 0.6);
+  }
+
+  .badge-rel {
+    background: linear-gradient(135deg, #ede9fe, #c4b5fd);
+    color: #5b21b6;
+    border: 1px solid rgba(196, 181, 253, 0.6);
+  }
+
+  .badge-prop {
+    background: linear-gradient(135deg, #fce7f3, #f9a8d4);
+    color: #9d174d;
+    border: 1px solid rgba(249, 168, 212, 0.6);
+  }
+
+  .model-text {
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+  .model-text code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    background: rgba(255, 255, 255, 0.6);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    color: #1e3a5f;
+  }
+
+  /* Cypher код */
+  .cypher-block {
+    background: rgba(30, 58, 95, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+  }
+
+  .cypher-block pre {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.75rem;
+    line-height: 1.7;
+    color: #1e3a5f;
+    white-space: pre;
+  }
+
+  .cypher-block .kw {
+    color: #7c3aed;
+    font-weight: 600;
+  }
+
+  .cypher-block .fn {
+    color: #0891b2;
+  }
+
+  .cypher-block .str {
+    color: #059669;
+  }
+
+  .cypher-block .label {
+    color: #dc2626;
+  }
+
+  .cypher-block .rel {
+    color: #9333ea;
+  }
+
+  /* Футер */
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.68rem;
+    color: #8a9ab5;
+    letter-spacing: 0.05em;
+  }
+
+  .footer code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    background: rgba(255, 255, 255, 0.55);
+    padding: 2px 7px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    color: #4a5a7a;
+    font-size: 0.65rem;
+  }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 1.5rem; }
+    .specs { gap: 0.5rem; }
+    .spec { padding: 0.7rem 0.4rem; }
+    .spec-value { font-size: 0.9rem; }
+    .cypher-block { padding: 0.75rem; }
+    .cypher-block pre { font-size: 0.68rem; }
+  }
+</style>
+</head>
+<body>
+
+  <article class="glass-card">
+
+    <div class="meta">
+      <span>SPEC-ID · N4J-2026-LTS</span>
+      <span class="status">Mock info sample</span>
+    </div>
+
+    <h1>Neo4j</h1>
+    <span class="subtitle">Native Graph Database · Labeled Property Graph Model</span>
+
+    <p class="description">
+      Нативная графовая СУБД, реализующая модель размеченного графа свойств.
+      Данные хранятся в виде узлов, связей и свойств, что обеспечивает
+      эффективное выполнение запросов по связям без JOIN-операций.
+    </p>
+
+    <div class="divider"></div>
+
+    <div class="specs">
+      <div class="spec">
+        <span class="spec-value">5.26</span>
+        <span class="spec-label">LTS версия</span>
+      </div>
+      <div class="spec">
+        <span class="spec-value">2026<span class="spec-unit">.08</span></span>
+        <span class="spec-label">Текущий релиз</span>
+      </div>
+      <div class="spec">
+        <span class="spec-value">21<span class="spec-unit">JDK</span></span>
+        <span class="spec-label">Мин. Java</span>
+      </div>
+    </div>
+
+    <div class="model">
+      <div class="section-title">Модель данных</div>
+
+      <div class="model-row">
+        <span class="model-badge badge-node">◉</span>
+        <span class="model-text">
+          <strong>Nodes</strong> — сущности предметной области. Могут иметь метки для категоризации: <code>(:Person:Actor)</code>
+        </span>
+      </div>
+
+      <div class="model-row">
+        <span class="model-badge badge-rel">→</span>
+        <span class="model-text">
+          <strong>Relationships</strong> — направленные, типизированные связи: <code>-[:ACTED_IN]-></code>
+        </span>
+      </div>
+
+      <div class="model-row">
+        <span class="model-badge badge-prop">{ }</span>
+        <span class="model-text">
+          <strong>Properties</strong> — пары ключ-значение на узлах и связях: <code>{name: 'Tom Hanks', born: 1956}</code>
+        </span>
+      </div>
+    </div>
+
+    <div class="cypher-block">
+      <pre><span class="kw">MATCH</span> (p:<span class="label">Person</span>)-[<span class="rel">:ACTED_IN</span>]->(m:<span class="label">Movie</span>)
+<span class="kw">WHERE</span> m.title = <span class="str">'The Matrix'</span>
+<span class="kw">RETURN</span> p.name, p.born
+<span class="kw">ORDER BY</span> p.born</pre>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="footer">
+      <span>Источник: Neo4j Documentation</span>
+      <code>cypher-25</code>
+    </div>
+
+  </article>
+
+</body>
+</html>

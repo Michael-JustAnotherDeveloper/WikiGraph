@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель страниц</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-10 px-4">
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-md">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Добавление страницы</h1>
+        
+        <!-- Уведомления -->
+        <div id="alert" class="hidden mb-6 p-4 rounded-lg text-sm"></div>
+
+        <form id="pageForm" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- URL -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">URL страницы</label>
+                    <input type="text" id="url" required placeholder="/wiki/A" 
+                           class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Author -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Автор</label>
+                    <input type="text" id="author" required placeholder="Иван Иванов" 
+                           class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <!-- Title -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Заголовок (Title)</label>
+                <input type="text" id="title" required placeholder="Статья А" 
+                       class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Описание (Description)</label>
+                <textarea id="description" rows="2" required placeholder="Краткое описание страницы..." 
+                          class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+            </div>
+
+            <!-- Links -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Ссылки (Links)</label>
+                <p class="text-xs text-gray-500 mb-1">Укажите ссылки по одной на строку или через запятую</p>
+                <textarea id="links" rows="3" placeholder="/wiki/B&#10;/wiki/C" 
+                          class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+            </div>
+
+            <!-- Content (Drag and Drop Area) -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Содержимое (Content HTML)</label>
+                
+                <div id="drop-zone" 
+                     class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors cursor-pointer bg-gray-50">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <p class="mt-1 text-sm text-gray-600">Перетащите сюда <strong>.html</strong> файл или кликните для выбора</p>
+                    <input type="file" id="file-input" accept=".html,.htm,.txt" class="hidden">
+                </div>
+
+                <textarea id="content" rows="8" required placeholder="<html>...</html>" 
+                          class="mt-3 block w-full font-mono text-xs border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="submit-btn" 
+                    class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                Отправить в бэкенд
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const contentTextarea = document.getElementById('content');
+        const form = document.getElementById('pageForm');
+        const alertBox = document.getElementById('alert');
+
+        // Drag & Drop Handlers
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-blue-500', 'bg-blue-50');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                readFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                readFile(e.target.files[0]);
+            }
+        });
+
+        function readFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                contentTextarea.value = e.target.result;
+            };
+            reader.readAsText(file);
+        }
+
+        // Form Submit
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Преобразование списка ссылок в массив строк
+            const linksRaw = document.getElementById('links').value;
+            const links = linksRaw
+                .split(/[\n,]+/)
+                .map(link => link.trim())
+                .filter(link => link.length > 0);
+
+            const payload = {
+                url: document.getElementById('url').value.trim(),
+                title: document.getElementById('title').value.trim(),
+                author: document.getElementById('author').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                content: contentTextarea.value,
+                links: links
+            };
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Отправка...";
+
+            try {
+                const response = await fetch('/api/pages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('Страница успешно отправлена!', 'success');
+                } else {
+                    showAlert(`Ошибка: ${result.detail || 'Неизвестная ошибка'}`, 'error');
+                }
+            } catch (err) {
+                showAlert(`Ошибка сети: ${err.message}`, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Отправить в бэкенд";
+            }
+        });
+
+        function showAlert(message, type) {
+            alertBox.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+            if (type === 'success') {
+                alertBox.classList.add('bg-green-100', 'text-green-800');
+            } else {
+                alertBox.classList.add('bg-red-100', 'text-red-800');
+            }
+            alertBox.innerText = message;
+        }
+    </script>
+</body>
+</html>
