@@ -13,7 +13,7 @@ import (
 
 const (
 	neo4jImage    = "neo4j:5.22"
-	esImage       = "docker.elastic.co/elasticsearch/elasticsearch:8.14.0"
+	esImage       = "docker.elastic.co/elasticsearch/elasticsearch:8.17.0"
 	neo4jPassword = "testpassword"
 )
 

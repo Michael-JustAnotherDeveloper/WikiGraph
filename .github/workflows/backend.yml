@@ -1,0 +1,104 @@
+name: CI backend
+
+on:
+    push:
+        branches: [main]
+        paths:
+            - 'backend/**'
+            - '.github/workflows/backend.yml'
+
+concurrency:
+    group: backend-${{github.ref}}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+env:
+    GO_VERSION: '1.25.0'
+    IMAGE_NAME: ${{github.repository}}/backend
+
+jobs:
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+
+        defaults:
+          run:
+            working-directory: backend
+
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-go@v5
+              with:
+                  go-version: ${{env.GO_VERSION}}
+                  cache-dependency-path: backend/go.sum
+            - uses: golangci/golangci-lint-action@v6
+              with:
+                version: v2.1.6
+                working-directory: backend
+                args: --timeout=5m
+            
+            - name: go vet
+              run: go vet ./...
+            
+            - name: gofmt check
+              run: |
+                if [ -n "$(gofmt -l .)" ]; then
+                  echo "Files not formatted:"
+                  gofmt -l .
+                  exit 1
+                fi
+
+    tests:
+        name: Tests
+        timeout-minutes: 10
+        runs-on: ubuntu-latest
+        defaults:
+          run:
+            working-directory: backend
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-go@v5
+              with:
+                go-version: ${{env.GO_VERSION}}
+                cache-dependency-path: backend/go.sum
+
+            - run: go test ./tests/...
+        
+
+    build:
+        name: Build
+        timeout-minutes: 30
+        needs: tests
+        runs-on: ubuntu-latest
+        defaults:
+          run:
+            working-directory: backend
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-go@v5
+              with:
+                go-version: ${{env.GO_VERSION}}
+                cache-dependency-path: backend/go.sum
+            - name: Build Docker Image
+              run: docker build -t ${{env.IMAGE_NAME}}:latest .
+        
+    integration-tests:
+        name: Integration tests
+        timeout-minutes: 30
+        needs: tests
+        runs-on: ubuntu-latest
+        defaults:
+          run:
+            working-directory: backend
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-go@v5
+              with:
+                go-version: ${{env.GO_VERSION}}
+                cache-dependency-path: backend/go.sum
+
+            - run: go test -v -tags=integration ./tests/... 
+
