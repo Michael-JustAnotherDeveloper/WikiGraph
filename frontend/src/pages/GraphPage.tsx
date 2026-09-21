@@ -126,7 +126,7 @@ export function GraphPage() {
     <div className="content--wide">
       <div className="glass graph-toolbar">
         <Link to="/" className="button-quiet">
-          К поиску
+          Поиск
         </Link>
         <label>
           Глубина обхода
@@ -197,7 +197,7 @@ export function GraphPage() {
 
       {backlinks.data && backlinks.data.length > 0 && (
         <div className="glass graph-aside">
-          <h3>Сюда ссылаются</h3>
+          <h3>Основные ссылки </h3>
           <ul className="backlink-list">
             {backlinks.data.map((url) => (
               <li key={url}>

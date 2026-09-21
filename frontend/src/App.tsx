@@ -22,7 +22,7 @@ export default function App() {
       <header className="topbar">
         <Link to="/" className="brand">
           <span className="brand-mark" aria-hidden="true" />
-          Граф страниц
+          Главная
         </Link>
         <div className="topbar-spacer" />
         <LangToggle />

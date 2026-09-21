@@ -35,10 +35,18 @@ export function SearchPage() {
   return (
     <>
       <div className="search-head">
-        <h1>Найдите статью и посмотрите, с чем она связана</h1>
+        <h1>WikiGraph ✧</h1>
         <p>
-          Поиск идёт по заголовку, автору и описанию. У каждой находки есть граф
-          исходящих ссылок — по нему видно, куда статья ведёт дальше.
+          - Это про быстрый поиск по связям. 
+        </p>
+        <p>
+          - Минимализм.
+        </p> 
+        <p>
+          - Чтение статей в необычном формате. 
+        </p>
+        <p>
+          - Автор: Michael-JustAnotherDeveloper.
         </p>
       </div>
 
@@ -46,11 +54,11 @@ export function SearchPage() {
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="Например: графовые базы данных"
+          placeholder="Ищите что угодно"
           aria-label="Поисковый запрос"
         />
         <button type="button" className="button-quiet" onClick={openRandom}>
-          Случайная
+          Рандом
         </button>
         <button type="submit" className="button-primary" disabled={draft.trim().length === 0}>
           Найти
@@ -60,8 +68,7 @@ export function SearchPage() {
       {submitted === '' && (
         <div className="glass state">
           <strong>Начните с запроса</strong>
-          Язык переключается в шапке — он меняет, какие поля весят больше при
-          ранжировании.
+          Язык переключается в шапке — он делает поиск более релевантным.
         </div>
       )}
 
