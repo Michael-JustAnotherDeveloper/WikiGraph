@@ -1,51 +1,49 @@
 # WikiGraph  (demo)
+![CI](https://github.com/Michael-JustAnotherDeveloper/WikiGraph/actions/workflows/backend.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
-Википедия со связями между страницами: поиск через Elasticsearch, граф — в
+
+![Elasticsearch](https://img.shields.io/badge/Elasticsearch-005571?style=for-the-badge&logo=elasticsearch&logoColor=white)
+![Neo4j](https://img.shields.io/badge/Neo4j-008CC1?style=for-the-badge&logo=neo4j&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![Превью](previews/preview.gif)
+
+Пользователь ищет статьи через граф связей, кликает по вершине и открывает HTML-страницу из объектного хранилища.
+
+Поиск через Elasticsearch, граф — в
 Neo4j, HTML-контент — в S3. Все три хранилища связаны через `uuid`,
 детерминированный от `url`.
 
-# Зачем нужен проект
-- Для развития как DevOps инженер
-- Расширить свой стек
-- Научиться строить инфру
+`URL` может не быть формата `/example/page1` но так писать рекомендуется.
 
-# Запуск
-Nginx пока что слушает на 80 http, админ 8000
+- можно использовать этот проект как основу для своей версии "WikiGraph" и построения своей базы знаний
+- удобная миграция данных (Понятный пример через админку)
+- базово покрыт тестами, выстроен CI процесс, то есть инфраструктура в процессе развития
+
+## Запуск
+```bash
+cp .env.example .env
+```
 ```bash
 sudo docker compose up -d   # в корне
 ```
+или
+```bash
+docker compose up -d   # в корне
+```
 
-## Архитектура
+## Архитектура запросов
 
 ```mermaid
-flowchart LR
-    User((Пользователь))
-    Dev((Admin Panel))
-
-    subgraph Frontend["Frontend — React + Vite"]
-        Search[Поиск]
-        Graph[Граф]
-        Viewer[Просмотр страницы]
-    end
-
-    subgraph Backend["Backend — Go"]
-        API[HTTP API]
-        Svc[Service layer]
-    end
-
-    ES[(Elasticsearch<br/>поиск)]
-    Neo[(Neo4j<br/>граф связей)]
-    S3[(S3 / Selectel<br/>HTML-контент)]
-
-    User --> Search --> API
-    User --> Graph --> API
-    User --> Viewer --> API
-    Dev -- "POST /internal/pages" --> API
-
-    API --> Svc
-    Svc --> ES
-    Svc --> Neo
-    Svc --> S3
+graph TD
+    User --> |GET граф по вершине| Nginx[Nginx]
+    Nginx ---> Backend
+    Backend ---> |1 запрос поиск| Elasticsearch[(Elasticsearch)]
+    Backend ---> |2 запрос графы| Neo4j[(Neo4j 5.22)]
+    Backend ---> |плоский json граф| User
+    User ---> |GET presigned-url| Nginx
+    Nginx ---> Backend
+    User ----> |использует presigned-url| S3((Selectel S3))
 ```
 ---
 
@@ -60,12 +58,68 @@ flowchart LR
     Create --> Done
     Overwrite --> Done["готово"]
 ```
----
+## API
 
-# Что дальше
+| Метод | Путь | Назначение |
+| --- | --- | --- |
+| GET | `/api/search?q=&lang=&size=` | поиск через ES |
+| GET | `/api/graph/{uuid\|url}?k=` | граф вокруг узла, `1 ≤ k ≤ 5` |
+| GET | `/api/page/{uuid}/url` | presigned URL на HTML |
+| GET | `/api/backlinks/{uuid\|url}` | входящие ссылки |
+| GET | `/api/random` | случайная страница |
+| GET | `/health` | статус трёх хранилищ, 503 если что-то лежит |
+| GET | `/stats` | количество Page / Stub / рёбер |
+| POST | `/internal/pages` | вставка или перезапись страницы |
 
-- в будущем будет создан CI/CD пайплайн
+## Примеры запросов
+Указаны в scripts/seed.sh, запуск:
+```bash
+./scripts/seed.sh   # в корне; нужно чтобы порты были проброшены наружу
+```
+
+## Для разработки
+Я оставил закоментированными ports в docker-compose.yml. Раскоментируйте их чтобы не мучаться с контейнерами.
+
+Сборка бэкенда:
+```bash
+cd backend
+go mod tidy
+set -a && source ../.env && set +a
+go run ./cmd/server
+```
+Сборка фронта:
+```bash
+cd frontend
+npm install
+npm run build
+npm run dev
+```
+
+Сборка админки:
+```bash
+cd admin
+python3 -m venv venv && source ./venv/bin/activate # или python
+pip3 install -r requirements.txt
+python3 src/main.py
+```
+
+## Стек
+- Python 3.14.4 + Fastapi: на админке
+- Go 1.25 + Chi + Neo4j + Elasticsearch + S3 + Testcontainers: на бэкенде
+- Typescript 5.5.3 + React 18.3.1 + Vite 5.3.4: на фронтенде
+
+## Лицензия
+- Этот проект распространяется под лицензией MIT см. [LICENSE](LICENSE)
+
+
+## Что дальше
 - Улучшу IaC часть
 - Добавлю нагрузочное тестирование
 - Внедрение sec
 - Доведу проект до production-ready + подробная документация
+
+
+## Зачем нужен проект
+- Для развития как DevOps инженер
+- Расширить свой стек
+- Научиться строить инфру
