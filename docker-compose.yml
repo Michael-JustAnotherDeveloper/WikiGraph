@@ -2,6 +2,7 @@ services:
   frontend:
     build: ./frontend
     container_name: frontend
+    restart: unless-stopped
 
     ports:
       - 80:80
@@ -10,11 +11,15 @@ services:
       - .env
     
     depends_on:
-      - backend
+      backend:
+        condition: service_started
+    
+    networks: [app]
 
   backend:
     build: ./backend
     container_name: backend
+    restart: unless-stopped
 
     env_file:
       - .env
@@ -25,20 +30,29 @@ services:
     #ports:
       #-8080:8080
 
-
     depends_on:
       elastic_db:
         condition: service_healthy
       graph_db:
         condition: service_healthy
+    
+    networks: [app]
 
   elastic_db:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
     container_name: elastic
+    restart: unless-stopped
+
     environment:
       xpack.security.enabled: "false"
       discovery.type: single-node
-      #ES_JAVA_OPTS: -Xms512m -Xmx512m
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+        max-file: "10"
     
     #ports:
       #- 9200:9200
@@ -52,10 +66,14 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
+      start_period: 30s
+    
+    networks: [app]
   
   graph_db:
     image: neo4j:5.22
     container_name: graph
+    restart: unless-stopped
     environment:
       NEO4J_AUTH: ${NEO4J_USER}/${NEO4J_PASSWORD}
 
@@ -67,18 +85,29 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
+      start_period: 30s
+
     volumes:
       - neo4j_data:/data
+    
+    networks: [app]
   
   admin_panel:
     build: ./admin
     container_name: admin_panel
+    restart: unless-stopped
     ports:
       - 8000:8000
     
     depends_on:
       - backend
+    
+    networks: [app]
   
 volumes:
   elastic-data:
   neo4j_data:
+
+networks:
+  app:
+    driver: bridge
