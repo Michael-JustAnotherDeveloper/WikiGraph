@@ -16,6 +16,7 @@ permissions:
 
 env:
     GO_VERSION: '1.25.0'
+    WORKDIR: backend
 
 jobs:
     lint:
@@ -25,13 +26,13 @@ jobs:
 
         defaults:
           run:
-            working-directory: backend
+            working-directory: ${{ env.WORKDIR }}
 
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-go@v5
               with:
-                  go-version: ${{env.GO_VERSION}}
+                  go-version: ${{ env.GO_VERSION }}
                   cache-dependency-path: backend/go.sum
             
             - name: go vet
@@ -39,9 +40,10 @@ jobs:
             
             - name: gofmt check
               run: |
-                if [ -n "$(gofmt -l .)" ]; then
+                UNFORMATTED=$(gofmt -l .)
+                if [ -n "$UNFORMATTED" ]; then
                   echo "Files not formatted:"
-                  gofmt -l .
+                  echo "$UNFORMATTED"
                   exit 1
                 fi
 
@@ -51,12 +53,12 @@ jobs:
         runs-on: ubuntu-latest
         defaults:
           run:
-            working-directory: backend
+            working-directory: ${{ env.WORKDIR }}
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-go@v5
               with:
-                go-version: ${{env.GO_VERSION}}
+                go-version: ${{ env.GO_VERSION }}
                 cache-dependency-path: backend/go.sum
 
             - run: go test ./tests/...
@@ -69,12 +71,12 @@ jobs:
         runs-on: ubuntu-latest
         defaults:
           run:
-            working-directory: backend
+            working-directory: ${{ env.WORKDIR }}
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-go@v5
               with:
-                go-version: ${{env.GO_VERSION}}
+                go-version: ${{ env.GO_VERSION }}
                 cache-dependency-path: backend/go.sum
             - name: Build Docker Image
               run: docker build -t go-backend:latest .
@@ -86,12 +88,12 @@ jobs:
         runs-on: ubuntu-latest
         defaults:
           run:
-            working-directory: backend
+            working-directory: ${{ env.WORKDIR }}
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-go@v5
               with:
-                go-version: ${{env.GO_VERSION}}
+                go-version: ${{ env.GO_VERSION }}
                 cache-dependency-path: backend/go.sum
 
             - run: go test -v -tags=integration ./tests/... 
