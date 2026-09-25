@@ -15,7 +15,7 @@ load_dotenv()
 class Settings(BaseSettings):
     backend_url: str = os.getenv("BACKEND_URL")
     internal_token: str = os.getenv("INTERNAL_TOKEN")
-    port: int = int(os.getenv("PORT", 8000))
+    port: int = int(os.getenv("ADMIN_PORT", 8000))
 
     model_config = SettingsConfigDict(
         env_file=".env", 
