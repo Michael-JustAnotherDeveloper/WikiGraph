@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -41,7 +40,6 @@ func run(log *slog.Logger) error {
 	if err != nil {
 		return err
 	}
-	fmt.Print(("\n\n\n"))
 	graphRepo, err := graph.New(cfg)
 	if err != nil {
 		return err

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 — Ошибка сервера</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+        }
+        h1 {
+            font-size: 6rem;
+            font-weight: 700;
+            letter-spacing: -2px;
+            line-height: 1;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+        p {
+            font-size: 1.125rem;
+            color: #a0a0a0;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        .buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        a, button {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s ease;
+        }
+        .btn-primary {
+            color: #121212;
+            background-color: #ffffff;
+        }
+        .btn-secondary {
+            color: #ffffff;
+            background-color: #2a2a2a;
+        }
+        a:hover, button:hover {
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>500</h1>
+        <p>На сервере произошла ошибка. Мы уже работаем над её устранением. Попробуйте обновить страницу позже.</p>
+        <div class="buttons">
+            <button class="btn-primary" onclick="location.reload()">Обновить</button>
+            <a href="/" class="btn-secondary">На главную</a>
+        </div>
+    </div>
+</body>
+</html>

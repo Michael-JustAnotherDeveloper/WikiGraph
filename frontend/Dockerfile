@@ -13,6 +13,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=build /react-app/dist /usr/share/nginx/html
 
+COPY 404.html 50x.html /usr/share/nginx/html/
+
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
