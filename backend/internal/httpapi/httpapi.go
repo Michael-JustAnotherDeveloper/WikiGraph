@@ -12,9 +12,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/example/wiki-graph/backend/internal/config"
 	"github.com/example/wiki-graph/backend/internal/domain"
+	"github.com/example/wiki-graph/backend/internal/metrics"
 	"github.com/example/wiki-graph/backend/internal/service"
 )
 
@@ -28,6 +30,7 @@ func NewRouter(svc *service.Service, cfg *config.Config, log *slog.Logger) http.
 	api := &API{svc: svc, cfg: cfg, log: log}
 
 	r := chi.NewRouter()
+	r.Use(metrics.MetricsMiddleware)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(30 * time.Second))
@@ -52,6 +55,9 @@ func NewRouter(svc *service.Service, cfg *config.Config, log *slog.Logger) http.
 		r.Use(api.requireInternalToken)
 		r.Post("/pages", api.insertPage)
 	})
+
+	// !do not analyze /metrics
+	r.Handle("/metrics", promhttp.Handler())
 
 	return r
 }

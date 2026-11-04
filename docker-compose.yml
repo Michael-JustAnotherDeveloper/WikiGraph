@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - 80:80
+      - "80:80"
     
     env_file:
       - .env
@@ -70,20 +70,18 @@ services:
     
     networks: [app]
   
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.12.2
-    container_name: kibana
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    
     restart: unless-stopped
 
-    environment:
-      ELASTICSEARCH_HOSTS: ${ES_URL}
-    ports:
-      - ${KIBANA_PORT}:${KIBANA_PORT}
     networks: [app]
-
-    depends_on:
-      elastic_db:
-        condition: service_healthy
 
   
   graph_db:
@@ -131,6 +129,7 @@ services:
 volumes:
   elastic-data:
   neo4j_data:
+  prometheus-data:
 
 networks:
   app:

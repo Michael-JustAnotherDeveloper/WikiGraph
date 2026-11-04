@@ -1,0 +1,34 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 15s
+  evaluation_interval: 1m
+  body_size_limit: "0"
+  sample_limit: 0
+  label_limit: 0
+  label_name_length_limit: 0
+  label_value_length_limit: 0
+  target_limit: 0
+
+scrape_configs:
+  - job_name: 'backend'
+    scrape_native_histograms: false
+    metrics_path: /metrics
+    honor_labels: false
+    honor_timestamps: true
+    scheme: http
+    follow_redirects: true
+    body_size_limit: "0"
+    sample_limit: 0
+    label_limit: 0
+    label_name_length_limit: 0
+    label_value_length_limit: 0
+    target_limit: 0
+    static_configs:
+      - targets: ['backend:8080']
+        labels:
+          service: backend
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
