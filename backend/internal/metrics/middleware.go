@@ -41,6 +41,6 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 		}
 
 		httpRequestsTotal.With(labels).Inc()
-		httpRequestDuration.With(labels).Observe(time.Since(start).Seconds())
+		httpRequestDuration.With(labels).Observe(SinceSeconds(start))
 	})
 }

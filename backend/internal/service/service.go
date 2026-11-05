@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/example/wiki-graph/backend/internal/domain"
+	"github.com/example/wiki-graph/backend/internal/metrics"
 )
 
 // Репозитории описаны интерфейсами: сервис не зависит от конкретных клиентов,
@@ -92,8 +93,12 @@ func (e *StorageError) Unwrap() error { return e.Err }
 // них достаточно повторить тот же запрос целиком: частично записанное
 // состояние будет затёрто, а не заблокировано конфликтом.
 func (s *Service) Insert(ctx context.Context, in InsertInput) (InsertResult, error) {
+	stageDurations := map[string]float64{} // stage_name - durations_seconds
+
+	start := time.Now()
 	url := strings.TrimSpace(in.URL)
 	if url == "" {
+		metrics.ObserveTransaction(start, domain.ErrInvalidArgument)
 		return InsertResult{}, fmt.Errorf("%w: url is required", domain.ErrInvalidArgument)
 	}
 
@@ -107,17 +112,45 @@ func (s *Service) Insert(ctx context.Context, in InsertInput) (InsertResult, err
 		Links:       in.Links,
 	}
 
+	startEs := time.Now()
+	stage := "elasticsearch"
 	if err := s.search.Insert(ctx, page); err != nil {
-		return InsertResult{}, &StorageError{Stage: "elasticsearch", Err: err}
+		dur := metrics.SinceSeconds(startEs)
+		metrics.ObserveStorage(dur, stage, err)
+		metrics.ObserveTransaction(start, err)
+		return InsertResult{}, &StorageError{Stage: stage, Err: err}
 	}
+	dur := metrics.SinceSeconds(startEs)
+	stageDurations[stage] = dur
+	metrics.ObserveStorage(dur, stage, nil)
+
+	startNeo := time.Now()
+	stage = "neo4j"
 	created, err := s.graph.Insert(ctx, page)
 	if err != nil {
-		return InsertResult{}, &StorageError{Stage: "neo4j", Err: err}
+		dur := metrics.SinceSeconds(startNeo)
+		metrics.ObserveStorage(dur, stage, err)
+		metrics.ObserveTransaction(start, err)
+		return InsertResult{}, &StorageError{Stage: stage, Err: err}
 	}
-	if err := s.blob.Put(ctx, page.UUID, page.Content, ""); err != nil {
-		return InsertResult{}, &StorageError{Stage: "s3", Err: err}
-	}
+	dur = metrics.SinceSeconds(startNeo)
+	stageDurations[stage] = dur
+	metrics.ObserveStorage(dur, stage, nil)
 
+	startS3 := time.Now()
+	stage = "s3"
+	if err := s.blob.Put(ctx, page.UUID, page.Content, ""); err != nil {
+		dur := metrics.SinceSeconds(startS3)
+		metrics.ObserveStorage(dur, stage, err)
+		metrics.ObserveTransaction(start, err)
+		return InsertResult{}, &StorageError{Stage: stage, Err: err}
+	}
+	dur = metrics.SinceSeconds(startS3)
+	stageDurations[stage] = dur
+	metrics.ObserveStorage(dur, stage, nil)
+
+	metrics.ObserveTransaction(start, nil)
+	metrics.ObserveSlowestStage(stageDurations)
 	return InsertResult{UUID: page.UUID, Created: created}, nil
 }
 
