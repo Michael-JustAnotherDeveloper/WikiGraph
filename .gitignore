@@ -366,3 +366,8 @@ terraform.rc
 # planout
 !secret_example.tfvars
 id_rsa
+
+# ETL pipeline (a lot of data)
+docker-compose.ETL.yml
+etl
+# ===========================

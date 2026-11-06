@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/example/wiki-graph/backend/internal/domain"
 	"github.com/example/wiki-graph/backend/internal/metrics"
@@ -93,7 +95,7 @@ func (e *StorageError) Unwrap() error { return e.Err }
 // них достаточно повторить тот же запрос целиком: частично записанное
 // состояние будет затёрто, а не заблокировано конфликтом.
 func (s *Service) Insert(ctx context.Context, in InsertInput) (InsertResult, error) {
-	stageDurations := map[string]float64{} // stage_name - durations_seconds
+	stageDurations := make(map[string]float64, 3) // stage_name - durations_seconds
 
 	start := time.Now()
 	url := strings.TrimSpace(in.URL)
@@ -112,43 +114,79 @@ func (s *Service) Insert(ctx context.Context, in InsertInput) (InsertResult, err
 		Links:       in.Links,
 	}
 
-	startEs := time.Now()
-	stage := "elasticsearch"
-	if err := s.search.Insert(ctx, page); err != nil {
+	g, ctx := errgroup.WithContext(ctx)
+
+	var mu sync.Mutex
+
+	var created bool
+
+	g.Go(func() error {
+		startEs := time.Now()
+		stage := "elasticsearch"
+
+		err := s.search.Insert(ctx, page)
 		dur := metrics.SinceSeconds(startEs)
-		metrics.ObserveStorage(dur, stage, err)
-		metrics.ObserveTransaction(start, err)
-		return InsertResult{}, &StorageError{Stage: stage, Err: err}
-	}
-	dur := metrics.SinceSeconds(startEs)
-	stageDurations[stage] = dur
-	metrics.ObserveStorage(dur, stage, nil)
 
-	startNeo := time.Now()
-	stage = "neo4j"
-	created, err := s.graph.Insert(ctx, page)
-	if err != nil {
+		mu.Lock()
+		stageDurations[stage] = dur
+		mu.Unlock()
+
+		if err != nil {
+			metrics.ObserveStorage(dur, stage, err)
+			return &StorageError{Stage: stage, Err: err}
+		}
+
+		metrics.ObserveStorage(dur, stage, nil)
+		return nil
+	})
+
+	g.Go(func() error {
+		startNeo := time.Now()
+		stage := "neo4j"
+
+		isCreated, err := s.graph.Insert(ctx, page)
 		dur := metrics.SinceSeconds(startNeo)
-		metrics.ObserveStorage(dur, stage, err)
-		metrics.ObserveTransaction(start, err)
-		return InsertResult{}, &StorageError{Stage: stage, Err: err}
-	}
-	dur = metrics.SinceSeconds(startNeo)
-	stageDurations[stage] = dur
-	metrics.ObserveStorage(dur, stage, nil)
 
-	startS3 := time.Now()
-	stage = "s3"
-	if err := s.blob.Put(ctx, page.UUID, page.Content, ""); err != nil {
+		mu.Lock()
+		stageDurations[stage] = dur
+		mu.Unlock()
+
+		if err != nil {
+			metrics.ObserveStorage(dur, stage, err)
+			return &StorageError{Stage: stage, Err: err}
+		}
+		mu.Lock()
+		created = isCreated
+		mu.Unlock()
+
+		metrics.ObserveStorage(dur, stage, nil)
+		return nil
+	})
+
+	g.Go(func() error {
+		startS3 := time.Now()
+		stage := "s3"
+
+		err := s.blob.Put(ctx, page.UUID, page.Content, "")
 		dur := metrics.SinceSeconds(startS3)
-		metrics.ObserveStorage(dur, stage, err)
-		metrics.ObserveTransaction(start, err)
-		return InsertResult{}, &StorageError{Stage: stage, Err: err}
-	}
-	dur = metrics.SinceSeconds(startS3)
-	stageDurations[stage] = dur
-	metrics.ObserveStorage(dur, stage, nil)
 
+		mu.Lock()
+		stageDurations[stage] = dur
+		mu.Unlock()
+
+		if err != nil {
+			metrics.ObserveStorage(dur, stage, err)
+			return &StorageError{Stage: stage, Err: err}
+		}
+
+		metrics.ObserveStorage(dur, stage, nil)
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		metrics.ObserveTransaction(start, err)
+		return InsertResult{}, err
+	}
 	metrics.ObserveTransaction(start, nil)
 	metrics.ObserveSlowestStage(stageDurations)
 	return InsertResult{UUID: page.UUID, Created: created}, nil

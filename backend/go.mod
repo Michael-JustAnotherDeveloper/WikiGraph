@@ -13,6 +13,7 @@ require (
 	github.com/neo4j/neo4j-go-driver/v5 v5.22.0
 	github.com/prometheus/client_golang v1.25.0
 	github.com/testcontainers/testcontainers-go v0.44.0
+	golang.org/x/sync v0.22.0
 )
 
 require (
