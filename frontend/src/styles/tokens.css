@@ -1,0 +1,43 @@
+/*
+ * Design tokens — Obsidian-inspired (see Agents.md §5).
+ * Dark theme is the default; light theme is opt-in via [data-theme='light'].
+ * Spacing is always a multiple of 4px. Radii: 4px small, 8px medium.
+ */
+
+:root,
+[data-theme='dark'] {
+  --color-bg: #1e1e1e;
+  --color-panel: #262626;
+  --color-hover: #2e2e2e;
+  --color-border: #333333;
+  --color-text: #dcddde;
+  --color-text-muted: #999999;
+  --color-accent: #8b5cf6;
+  --color-accent-contrast: #ffffff;
+  --color-node-page: #8b5cf6;
+  --color-node-stub: #666666;
+  --color-success: #3fb950;
+  --color-danger: #f85149;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-size-base: 14px;
+  --line-height-base: 1.5;
+}
+
+[data-theme='light'] {
+  --color-bg: #ffffff;
+  --color-panel: #f7f7f7;
+  --color-hover: #ececec;
+  --color-border: #d4d4d4;
+  --color-text: #1e1e1e;
+  --color-text-muted: #666666;
+  --color-accent: #8b5cf6;
+  --color-accent-contrast: #ffffff;
+  --color-node-page: #8b5cf6;
+  --color-node-stub: #999999;
+  --color-success: #1a7f37;
+  --color-danger: #cf222e;
+}

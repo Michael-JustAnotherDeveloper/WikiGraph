@@ -1,0 +1,86 @@
+{
+  "name": "wikigraph-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"*.{ts,json,html}\"",
+    "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.1.0",
+    "@tanstack/react-query": "^5.59.16",
+    "lucide-react": "^0.454.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-force-graph-2d": "^1.25.7",
+    "react-router-dom": "^6.28.0",
+    "zod": "^3.23.8",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.13.0",
+    "@typescript-eslint/parser": "^8.13.0",
+    "@vitejs/plugin-react": "^4.3.3",
+    "@vitest/coverage-v8": "^2.1.4",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.14",
+    "jsdom": "^25.0.1",
+    "prettier": "^3.3.3",
+    "typescript": "5.5.3",
+    "vite": "5.3.4",
+    "vitest": "^2.1.4"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": true,
+    "trailingComma": "all",
+    "printWidth": 100
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "browser": true,
+      "es2022": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "sourceType": "module"
+    },
+    "plugins": [
+      "@typescript-eslint",
+      "react-hooks",
+      "react-refresh"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:react-hooks/recommended"
+    ],
+    "ignorePatterns": [
+      "dist",
+      "coverage",
+      "node_modules",
+      "package-lock.json"
+    ],
+    "rules": {
+      "react-refresh/only-export-components": [
+        "warn",
+        {
+          "allowConstantExport": true
+        }
+      ]
+    }
+  }
+}

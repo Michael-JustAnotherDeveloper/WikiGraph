@@ -1,0 +1,44 @@
+.wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-text-muted);
+}
+
+.dot[data-status='ok'] {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.dot[data-status='degraded'] {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  display: none;
+  min-width: 160px;
+  padding: 8px 12px;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 20;
+}
+
+.wrapper:hover .tooltip,
+.dot:focus-visible + .tooltip {
+  display: block;
+}

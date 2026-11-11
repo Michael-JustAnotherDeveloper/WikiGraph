@@ -368,6 +368,5 @@ terraform.rc
 id_rsa
 
 # ETL pipeline (a lot of data)
-docker-compose.ETL.yml
-etl
+pipeline/src/vertex.json
 # ===========================

@@ -1,0 +1,117 @@
+.viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.kField {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.kSelect {
+  height: 24px;
+  padding: 0 4px;
+  font-size: 12px;
+  background-color: var(--color-bg);
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+}
+
+.iconButton:hover {
+  background-color: var(--color-hover);
+  color: var(--color-text);
+}
+
+.legend {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legendSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legendSwatch[data-kind='page'] {
+  background-color: var(--color-node-page);
+}
+
+.legendSwatch[data-kind='stub'] {
+  background-color: rgba(102, 102, 102, 0.45);
+  border: 1px dashed var(--color-node-stub);
+}
+
+.tooltip {
+  position: absolute;
+  max-width: 320px;
+  padding: 6px 10px;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 13px;
+  z-index: 20;
+}

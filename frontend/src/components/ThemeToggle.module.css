@@ -1,0 +1,15 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+}
+
+.button:hover {
+  background-color: var(--color-hover);
+  color: var(--color-text);
+}

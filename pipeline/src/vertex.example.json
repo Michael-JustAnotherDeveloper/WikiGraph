@@ -1,0 +1,215 @@
+[
+    {
+        "source": "Earth",
+        "links": [
+            "Solar System",
+            "Sun",
+            "Moon",
+            "Geography",
+            "Climate change",
+            "Geology",
+            "Physics"
+        ]
+    },
+    {
+        "source": "Physics",
+        "links": [
+            "Classical mechanics",
+            "Quantum mechanics",
+            "General relativity",
+            "Mathematics",
+            "Chemistry",
+            "Engineering"
+        ]
+    },
+    {
+        "source": "Chemistry",
+        "links": [
+            "Organic chemistry",
+            "Inorganic chemistry",
+            "Physical chemistry",
+            "Physics",
+            "Biology",
+            "Materials science"
+        ]
+    },
+    {
+        "source": "Biology",
+        "links": [
+            "Cell (biology)",
+            "Cell membrane",
+            "Cell nucleus",
+            "Chemistry",
+            "Medicine",
+            "Ecology"
+        ]
+    },
+    {
+        "source": "Human body",
+        "links": [
+            "Human brain",
+            "Heart",
+            "Lung",
+            "Biology",
+            "Medicine",
+            "Psychology"
+        ]
+    },
+    {
+        "source": "Mammal",
+        "links": [
+            "Bird",
+            "Reptile",
+            "Amphibian",
+            "Biology",
+            "Ecology",
+            "Evolution"
+        ]
+    },
+    {
+        "source": "Tree",
+        "links": [
+            "Flower",
+            "Grass",
+            "Fern",
+            "Biology",
+            "Climate change",
+            "Agriculture"
+        ]
+    },
+    {
+        "source": "Geography",
+        "links": [
+            "Continent",
+            "Africa",
+            "Asia",
+            "Geology",
+            "Climate",
+            "Demography",
+            "History"
+        ]
+    },
+    {
+        "source": "Geology",
+        "links": [
+            "Mineral",
+            "Rock (geology)",
+            "Igneous rock",
+            "Geography",
+            "Physics",
+            "Climate"
+        ]
+    },
+    {
+        "source": "Mathematics",
+        "links": [
+            "Arithmetic",
+            "Algebra",
+            "Linear algebra",
+            "Physics",
+            "Computer science",
+            "Statistics",
+            "Algorithm"
+        ]
+    },
+    {
+        "source": "Computer",
+        "links": [
+            "Computer science",
+            "Programming language",
+            "Python (programming language)",
+            "Mathematics",
+            "Engineering",
+            "Artificial intelligence"
+        ]
+    },
+    {
+        "source": "Engineering",
+        "links": [
+            "Mechanical engineering",
+            "Electrical engineering",
+            "Civil engineering",
+            "Physics",
+            "Materials science",
+            "Economics"
+        ]
+    },
+    {
+        "source": "History",
+        "links": [
+            "Prehistory",
+            "Ancient Egypt",
+            "Ancient Greece",
+            "Archaeology",
+            "Anthropology",
+            "Politics",
+            "Culture"
+        ]
+    },
+    {
+        "source": "Politics",
+        "links": [
+            "Political science",
+            "Democracy",
+            "Republic",
+            "History",
+            "Economics",
+            "Sociology"
+        ]
+    },
+    {
+        "source": "Economics",
+        "links": [
+            "Microeconomics",
+            "Macroeconomics",
+            "Supply and demand",
+            "Politics",
+            "Business",
+            "Globalization",
+            "Statistics"
+        ]
+    },
+    {
+        "source": "Culture",
+        "links": [
+            "Language",
+            "Linguistics",
+            "Writing system",
+            "History",
+            "Philosophy",
+            "Anthropology"
+        ]
+    },
+    {
+        "source": "Art",
+        "links": [
+            "Painting",
+            "Sculpture",
+            "Drawing",
+            "Culture",
+            "History",
+            "Philosophy"
+        ]
+    },
+    {
+        "source": "Mass media",
+        "links": [
+            "Journalism",
+            "Newspaper",
+            "Radio",
+            "Culture"
+        ]
+    },
+    {
+        "source": "Food",
+        "links": [
+            "Cuisine",
+            "Cooking",
+            "Baking",
+            "Agriculture",
+            "Nutrition",
+            "Chemistry",
+            "Food security"
+        ]
+    }
+]

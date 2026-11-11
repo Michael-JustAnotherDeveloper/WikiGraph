@@ -1,0 +1,73 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.inputWrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 10px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  height: 32px;
+  padding: 0 8px 0 32px;
+  background-color: var(--color-bg);
+}
+
+.input:hover {
+  background-color: var(--color-hover);
+}
+
+.langSwitch {
+  display: inline-flex;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.langButton {
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background-color: var(--color-panel);
+}
+
+.langButton + .langButton {
+  border-left: 1px solid var(--color-border);
+}
+
+.langButton:hover {
+  background-color: var(--color-hover);
+}
+
+.langButton[data-active='true'] {
+  color: var(--color-accent-contrast);
+  background-color: var(--color-accent);
+}
+
+.sizeSelect {
+  height: 32px;
+  padding: 0 6px;
+  background-color: var(--color-panel);
+}
+
+@media (max-width: 720px) {
+  .sizeField {
+    display: none;
+  }
+}

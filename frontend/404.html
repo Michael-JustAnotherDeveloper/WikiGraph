@@ -1,0 +1,102 @@
+<!-- 404.html -->
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 — WikiGraph</title>
+  <style>
+    :root {
+      --bg: #1e1e1e;
+      --panel: #262626;
+      --border: #333333;
+      --text: #dcddde;
+      --muted: #999999;
+      --accent: #8b5cf6;
+      --hover: #2e2e2e;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+    }
+    [data-theme="light"] {
+      --bg: #ffffff;
+      --panel: #f6f6f6;
+      --border: #e0e0e0;
+      --text: #1e1e1e;
+      --muted: #666666;
+      --accent: #7c3aed;
+      --hover: #ededed;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      font-weight: 400;
+    }
+    main {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .panel {
+      width: 100%;
+      max-width: 480px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 32px;
+    }
+    .code {
+      font-size: 48px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+      margin: 0 0 8px 0;
+      line-height: 1;
+    }
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+      color: var(--text);
+    }
+    p {
+      margin: 0 0 24px 0;
+      color: var(--muted);
+    }
+    a.button {
+      display: inline-block;
+      padding: 8px 16px;
+      background: var(--accent);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--accent);
+      outline: none;
+    }
+    a.button:hover,
+    a.button:focus-visible {
+      background: var(--accent);
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="panel">
+      <div class="code">404</div>
+      <h1>Страница не найдена</h1>
+      <p>Запрошенный адрес не существует.</p>
+      <a class="button" href="/">На главную</a>
+    </div>
+  </main>
+</body>
+</html>
