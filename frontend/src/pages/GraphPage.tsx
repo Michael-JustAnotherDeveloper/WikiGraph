@@ -45,7 +45,7 @@ export function GraphPage() {
         ) : !data || data.nodes.length === 0 ? (
           <EmptyView title="No links found" hint="This page has no known neighbours." />
         ) : (
-          <Graph data={data} k={k} onKChange={handleKChange} />
+          <Graph data={data} k={k} centerId={uuidOrUrl} onKChange={handleKChange} />
         )}
       </div>
     </div>

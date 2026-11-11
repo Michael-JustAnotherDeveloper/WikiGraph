@@ -26,6 +26,7 @@ vi.mock('react-force-graph-2d', async () => {
   };
 });
 
+// Chain: Page A (start, dist 0) — Stub B (dist 1) — Page C (dist 2).
 const fixture: GraphResponse = {
   nodes: [
     {
@@ -42,8 +43,18 @@ const fixture: GraphResponse = {
       description: null,
       resolved: false,
     },
+    {
+      uuid: 'u2',
+      url: 'https://c.test/page',
+      title: 'Page C',
+      description: null,
+      resolved: true,
+    },
   ],
-  edges: [{ from: 'https://a.test/page', to: 'https://b.test/stub' }],
+  edges: [
+    { from: 'https://a.test/page', to: 'https://b.test/stub' },
+    { from: 'https://b.test/stub', to: 'https://c.test/page' },
+  ],
 };
 
 function ArticleProbe() {
@@ -51,13 +62,13 @@ function ArticleProbe() {
   return <div data-testid="article">{uuid}</div>;
 }
 
-function renderGraph(onKChange: (k: number) => void = () => {}) {
+function renderGraph(onKChange: (k: number) => void = () => {}, centerId = 'https://a.test/page') {
   return render(
     <MemoryRouter initialEntries={['/graph/start']}>
       <Routes>
         <Route
           path="/graph/:uuidOrUrl"
-          element={<Graph data={fixture} k={1} onKChange={onKChange} />}
+          element={<Graph data={fixture} k={1} centerId={centerId} onKChange={onKChange} />}
         />
         <Route path="/page/:uuid" element={<ArticleProbe />} />
       </Routes>
@@ -78,6 +89,7 @@ function makeCtx() {
     fill: () => ops.push(['fill']),
     stroke: () => ops.push(['stroke']),
     setLineDash: (dash: Array<number>) => ops.push(['setLineDash', dash]),
+    fillText: (text: string, x: number, y: number) => ops.push(['fillText', text, x, y]),
     set fillStyle(value: string) {
       ops.push(['fillStyle', value]);
     },
@@ -87,8 +99,27 @@ function makeCtx() {
     set lineWidth(value: number) {
       ops.push(['lineWidth', value]);
     },
+    set font(value: string) {
+      ops.push(['font', value]);
+    },
+    set textAlign(value: string) {
+      ops.push(['textAlign', value]);
+    },
   };
   return { ops, ctx: ctx as unknown as CanvasRenderingContext2D };
+}
+
+function paint(node: Record<string, unknown>, ctx: CanvasRenderingContext2D, globalScale?: number) {
+  const paintFn = fg.props?.nodeCanvasObject as (
+    node: unknown,
+    ctx: CanvasRenderingContext2D,
+    globalScale?: number,
+  ) => void;
+  paintFn(node, ctx, globalScale);
+}
+
+function fillStyles(ops: Array<Array<unknown>>): Array<string> {
+  return ops.filter(([op]) => op === 'fillStyle').map(([, value]) => value as string);
 }
 
 describe('Graph', () => {
@@ -115,40 +146,94 @@ describe('Graph', () => {
     await screen.findByTestId('force-graph');
     const graphData = fg.props?.graphData as GraphData;
 
-    expect(graphData.nodes).toHaveLength(2);
+    expect(graphData.nodes).toHaveLength(3);
     expect(graphData.nodes.map((n) => n.id)).toEqual([
       'https://a.test/page',
       'https://b.test/stub',
+      'https://c.test/page',
     ]);
     expect(graphData.links).toEqual([
       { source: 'https://a.test/page', target: 'https://b.test/stub' },
+      { source: 'https://b.test/stub', target: 'https://c.test/page' },
     ]);
   });
 
-  it('distinguishes resolved pages (violet, opaque) from stubs (translucent gray, dashed)', async () => {
+  it('keeps the start node at full accent opacity and fades neighbours by hop distance', async () => {
     renderGraph();
     await screen.findByTestId('force-graph');
-
-    const paint = fg.props?.nodeCanvasObject as (
-      node: unknown,
-      ctx: CanvasRenderingContext2D,
-    ) => void;
     const graphData = fg.props?.graphData as GraphData;
-    const [pageNode, stubNode] = graphData.nodes;
+    const [pageA, , pageC] = graphData.nodes;
+
+    const start = makeCtx();
+    paint(pageA, start.ctx);
+    expect(fillStyles(start.ops)).toContain('rgba(139, 92, 246, 1)');
+
+    const ring2 = makeCtx();
+    paint(pageC, ring2.ctx);
+    expect(fillStyles(ring2.ops)).toContain('rgba(139, 92, 246, 0.64)');
+  });
+
+  it('matches the start node by uuid as well as by url', async () => {
+    renderGraph(() => {}, 'u1');
+    await screen.findByTestId('force-graph');
+    const graphData = fg.props?.graphData as GraphData;
+    const [pageA] = graphData.nodes;
+
+    const start = makeCtx();
+    paint(pageA, start.ctx);
+    expect(fillStyles(start.ops)).toContain('rgba(139, 92, 246, 1)');
+  });
+
+  it('distinguishes resolved pages from stubs (translucent gray, dashed)', async () => {
+    renderGraph();
+    await screen.findByTestId('force-graph');
+    const graphData = fg.props?.graphData as GraphData;
+    const [pageA, stubB] = graphData.nodes;
 
     const page = makeCtx();
-    paint(pageNode, page.ctx);
-    expect(page.ops).toContainEqual(['fillStyle', '#8b5cf6']);
-    expect(page.ops).toContainEqual(['fill']);
+    paint(pageA, page.ctx);
     expect(page.ops.filter(([op]) => op === 'setLineDash')).toHaveLength(0);
 
     const stub = makeCtx();
-    paint(stubNode, stub.ctx);
+    paint(stubB, stub.ctx);
     expect(stub.ops).toContainEqual(['fillStyle', 'rgba(102, 102, 102, 0.45)']);
     expect(stub.ops).toContainEqual(['setLineDash', [3, 2]]);
     expect(stub.ops).toContainEqual(['strokeStyle', '#666666']);
     expect(stub.ops).toContainEqual(['stroke']);
     expect(stub.ops).toContainEqual(['setLineDash', []]);
+  });
+
+  it('draws the article title under resolved nodes and skips stubs', async () => {
+    renderGraph();
+    await screen.findByTestId('force-graph');
+    const graphData = fg.props?.graphData as GraphData;
+    const [pageA, stubB, pageC] = graphData.nodes;
+
+    const a = makeCtx();
+    paint(pageA, a.ctx);
+    expect(a.ops).toContainEqual(['fillText', 'Page A', 0, 16]);
+    expect(a.ops).toContainEqual(['textAlign', 'center']);
+    expect(a.ops.some(([op, value]) => op === 'font' && String(value).includes('9px'))).toBe(true);
+    expect(fillStyles(a.ops)).toContain('rgba(153, 153, 153, 0.6)');
+
+    const c = makeCtx();
+    paint(pageC, c.ctx);
+    expect(c.ops).toContainEqual(['fillText', 'Page C', 0, 16]);
+
+    const stub = makeCtx();
+    paint(stubB, stub.ctx);
+    expect(stub.ops.filter(([op]) => op === 'fillText')).toHaveLength(0);
+  });
+
+  it('hides titles when zoomed out below the label threshold', async () => {
+    renderGraph();
+    await screen.findByTestId('force-graph');
+    const graphData = fg.props?.graphData as GraphData;
+    const [pageA] = graphData.nodes;
+
+    const zoomedOut = makeCtx();
+    paint(pageA, zoomedOut.ctx, 0.3);
+    expect(zoomedOut.ops.filter(([op]) => op === 'fillText')).toHaveLength(0);
   });
 
   it('shows the description on page hover and the url on stub hover', async () => {
