@@ -8,6 +8,9 @@
 ![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
 ![Terraform](https://img.shields.io/badge/Terraform-623CE4?style=for-the-badge&logo=terraform&logoColor=white)
 
+[preview.webm](https://github.com/user-attachments/assets/90aec15f-941c-4257-be6a-912b00f6db9f)
+
+
 Пользователь ищет статьи через граф связей, кликает по вершине и открывает HTML-страницу из объектного хранилища.
 
 Поиск через Elasticsearch, граф — в
