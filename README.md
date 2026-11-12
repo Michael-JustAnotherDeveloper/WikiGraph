@@ -1,7 +1,8 @@
 # WikiGraph
+## [ENGLISH VERSION](README.en.md)
+
 ![CI](https://github.com/Michael-JustAnotherDeveloper/WikiGraph/actions/workflows/backend.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue)
-
 
 ![Elasticsearch](https://img.shields.io/badge/Elasticsearch-005571?style=for-the-badge&logo=elasticsearch&logoColor=white)
 ![Neo4j](https://img.shields.io/badge/Neo4j-008CC1?style=for-the-badge&logo=neo4j&logoColor=white)
@@ -124,16 +125,18 @@ python3 src/main.py
 ```bash
 docker compose -f compose.pipeline.yml up -d
 ```
-Этот скрипт использует vertex.json для построения связей графов (предоставлен vertex.example.json меньшего размера). Содержимое каждой вершины (сам контент и метаданные) берутся из открытого API wikipedia.org. Эта часть проекта необходима чтобы:
+Этот скрипт использует vertex.json для построения связей графов (предоставлен vertex.example.json меньшего размера). Содержимое каждой вершины (сам контент и метаданные) берутся из открытого API **wikipedia.org**. Эта часть проекта необходима чтобы:
 1. Проверить работу сервера на реальных данных
 2. Проверить, справляется ли система с большим количеством вставок
 3. Собрать метрики для анализа
 
 
 ## AI агенты
-Так как я отвечаю за архитектуру, инфраструктуру и бэкенд в одиночку, то написание тестов и frontend (ui интерфейс) я деллигировал AI исполнителям.
+Так как я отвечаю за **архитектуру**, **инфраструктуру** и **бэкенд** в одиночку, то написание тестов и frontend (UI-интерфейс) я деллигировал AI исполнителям.
 
-Именно для frontend я использовал `Kimi k3 cli`, выдал ей ограничения прав на уровне ядра: чтение всего, кроме .env, полный доступ только в frontend + .git. Это позволило не думать о неожиданных изменениях в критической инфраструктуре и максимально быстро разработать качественную ui оболчку. Для такого исполнителя основным источником правды служит `Agents.md`, `TODO.md` и `doc/architecture.md`
+UI-слой frontend (компоненты, страницы, стили) собран **Kimi K3 CLI**, через setfacl был выдан доступ к `frontend/` и `.git/`, а также права на чтение всего, кроме `.env` и `infra/secret.tfvars` (мера безопасности)
+
+Понадобилось 4 промпта: стартовый (по `Agents.md` / `TODO.md` / `doc/architecture.md`), один багфикс и две косметические правки. Dockerfile и конфиг Nginx написаны вручную до подключения агента — агент их не менял, хотя доступ на запись был.
 
 
 ## Лицензия
